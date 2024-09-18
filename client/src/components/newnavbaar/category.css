@@ -1,0 +1,45 @@
+.rightheader{
+    width: 250px;
+    height: auto;
+}
+.category .right_nav{
+    display: flex;
+    align-items: center;
+    background-color: #131921;
+    padding-bottom: 10px;
+}
+.category .right_nav h3{
+    margin-left: 10px;
+    margin-top: 32px;
+    font-style: italic;
+    font-weight: 500;
+    color: #fff;
+}
+.category .avtar{
+    cursor: pointer;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+.category .avtar2{
+    cursor: pointer;
+    background-color: #1365cf;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+.productsPageMainLeftCategoryTitle{
+    font-size: 14px;
+    font-weight: 700;
+
+}
+.productsPageMainLeftCategoryTitleContent{
+    padding-top: 7px;
+    padding-bottom: 30px;
+    margin-top:10px;
+    font-size: 14px;
+    gap:10px;
+    display:flex;
+    flex-direction:column;
+}
+.productsPageMainLeftCategoryContentSub{
+    font-weight: 600;
+}

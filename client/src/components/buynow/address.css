@@ -1,0 +1,14 @@
+
+.address .Checkout{
+  position: relative;
+  padding-top: 100px;
+
+ }
+ .Shipping {
+  z-index: 1;
+  position: relative;
+  margin: 80px ;
+  padding: 20px;
+ width: 90%; 
+
+}
