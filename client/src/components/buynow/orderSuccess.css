@@ -1,0 +1,45 @@
+.order-success {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .success-message {
+    border: 2px solid #3399cc;
+    padding: 30px;
+    display: inline-block;
+    border-radius: 8px;
+  }
+  
+  .success-message h1 {
+    color: #28a745;
+  }
+  
+  .success-message p {
+    margin-top: 10px;
+    color: #565959;
+  }
+  
+  .success-message img {
+    margin-top: 20px;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .success-actions {
+    margin-top: 20px;
+  }
+  
+  .btn {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #3399cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .btn:hover {
+    background-color: #287ba5;
+  }
+  

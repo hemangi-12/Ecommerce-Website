@@ -17,6 +17,7 @@ import Eproducts from './components/Eproducts/eproducts';
 import Address from './components/buynow/Address'
 import Order from './components/Order/Order';
 import OrderDetails from './components/Order/OrderDetails';
+import OrderSuccess from './components/buynow/OrderSuccess';
 
 
 
@@ -142,7 +143,7 @@ function App() {
       <Route path="/shipping" element={<Address />} />
       <Route path="/account/order" element={<Order />} />
       <Route path="/account/order/:orderId" element={<OrderDetails />} />
-      
+      <Route path="/order-success" element={<OrderSuccess />} />
       
       
     </Routes>

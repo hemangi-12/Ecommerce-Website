@@ -36,6 +36,17 @@
     padding: 10px 30px;
     cursor: pointer;
 }
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .cart_btn .cart_btn1{
     background-color:#FFD814;
     border: none;
@@ -48,8 +59,10 @@
     box-shadow: 0 0 10px -5px rgba(0,0,0,.5);
 }
 
-.cart_btn .cart_btn1:hover{
-    background-color:#f1cc13;
+
+.cart_btn .cart_btn1:hover:active{
+  animation: pulse 0.2s ease;
+  background-color:#f1cc13;
 }
 
 .cart_btn .cart_btn2{

@@ -10,6 +10,8 @@ const bcrypt=require("bcryptjs");
 const authenicate=require("../middleware/authenticate");
 const Address=require("../models/Address.js")
 const razorpay=require("../db/razorpayClient.js")
+const crypto = require('crypto');
+const apiKey=process.env.RAZORPAY_KEY_ID
 
 
 
@@ -208,12 +210,12 @@ router.delete("/remove/:id", authenicate, async (req, res) => {
 
 //add shipping Address
 router.post("/addAddress",authenicate, async (req, res) => {
-    const { firstName,lastName,streetAddress, city, state, zipCode, mobile } = req.body;
+    const { fname,lname,streetAddress, city, state, zipCode, mobile } = req.body;
     let userID = req.USER;
     let userAddress = await Address.create({
       userID,
-      firstName,
-      lastName,
+      fname,
+      lname,
       streetAddress,
       city,
       state,
@@ -241,55 +243,131 @@ router.post("/orders",authenicate,async(req,res)=>{
 
     }
 })
-//find order by id
-router.get("/:id",authenicate,async(req,res)=>{
-    const user=req.USER;
 
-    try{
-        const createdOrder = await Order.findOrderById(req.params.id)
-        return res.status(201).send(createdOrder)
-
-    }catch(error){
-        return res.status(400).send({error:error.message})
-
+//order api
+router.post("/buy/payments", authenicate, async (req, res) => {
+    try {
+      const { amount, currency } = req.body;  // Expect the amount and currency from the frontend
+  
+      // Prepare the Razorpay order request
+      const options = {
+        amount: amount * 100,  // Convert to paise (smallest currency unit)
+        currency: currency || 'INR',
+        receipt: `receipt_${Date.now()}`,  // Unique receipt ID
+      };
+  
+      // Create order using Razorpay SDK
+      const order = await razorpay.orders.create(options);
+  
+      if (!order) return res.status(500).send('Unable to create order');
+      
+      res.status(201).json({
+        success: true,
+        order,
+      });
+    } catch (error) {
+      console.error("Error creating Razorpay order:", error.message);
+      res.status(201).json({ message: "Server Error", error: error.message });
     }
-})
-//order history
-router.get("/user",authenicate,async(req,res)=>{
-    const user=req.USER;
+  });
+  //verify api
 
-    try{
-        const createdOrder = await Order.usersOrderHistory(user._id)
-        return res.status(201).send(createdOrder)
+ 
 
-    }catch(error){
-        return res.status(400).send({error:error.message})
-
-    }
-})
-//payment
-router.post("/payments/:id",authenicate,async(req,res)=>{
-  try{
-    const paymentLink=await Payment.createPaymentLink(req.params.id);
-    return res.status(201).send(paymentLink);
-
-  }catch(error){
-    return res.status(400).send(error.message)
-
-  }
-})
-//update payment information
-router.get("/",authenicate,async(req,res)=>{
-    try{
-    await Payment.updatePaymentInformation(req.query);
-        return res.status(201).send({message:"Payment Information Updated",status:true});
-    
-      }catch(error){
-        return res.status(400).send(error.message)
-    
+router.post("/buy/verifyPayment", async (req, res) => {
+  try {
+    const { payment_id, order_id, signature } = req.body;
+    if (!payment_id || !order_id || !signature) {
+        return res.status(400).json({ success: false, message: 'Missing required fields' });
       }
-    
-})
+       // Validate the payment with Razorpay
+  const isSignatureValid = verifyPaymentSignature(payment_id, order_id, signature);
+  if (!isSignatureValid) {
+    return res.status(400).json({ success: false, message: 'Invalid payment signature' });
+  }
+
+    const body = `${order_id}|${payment_id}` ;
+
+    const expectedSignature = crypto
+      .createHmac('sha256', apiKey)
+      //.update(body.toString())
+      .update(order_id + "|" + payment_id)
+      .digest('hex');
+
+    //const isAuthentic = expectedSignature === signature;
+
+    //if (isAuthentic) {
+      if (expectedSignature === signature) {
+      // Payment is verified, you can save this info in your database
+      await Payment.updatePaymentStatus(order_id, 'successful');  // Example
+      res.status(400).json({ success: true });
+    } else {
+      // Signature mismatch
+      res.status(400).json({ success: false, message: 'Payment verification failed' });
+    }
+  } catch (error) {
+    console.error("Error during payment verification:", error.message);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
+
+/*// POST: Payment verification route
+router.post('/verifyPayment', authenicate, async (req, res) => {
+  try {
+    const { payment_id, order_id, signature } = req.body;
+
+    // Generate expected signature using Razorpay key
+    const generatedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_SECRET)
+      .update(order_id + "|" + payment_id)
+      .digest('hex');
+
+    // Verify if signature matches
+    if (generatedSignature === signature) {
+      // Payment is successful, create the order
+      const newOrder = new Order({
+        userId: req.user.id,
+        products: req.body.products,
+        amount: req.body.amount,
+        address: req.body.address,
+      });
+
+      await newOrder.save();
+      res.status(200).json({ success: true, message: 'Payment successful and order created' });
+    } else {
+      res.status(400).json({ success: false, message: 'Payment verification failed' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Payment verification error', error });
+  }
+});*/
+//order success
+router.post('/order-success', authenicate, async (req, res) => {
+    try {
+      const newOrder = new Order({
+        userId: req.user.id,
+        products: req.body.products,
+        amount: req.body.amount,
+        address: req.body.address,
+      });
+  
+      const savedOrder = await newOrder.save();
+      res.status(400).json(savedOrder);
+    } catch (err) {
+      res.status(201).json({ message: 'Order creation failed', error: err });
+    }
+  });
+  
+
+
+
+router.get("/getkey", (req, res) => {
+    console.log("Get key route hit");
+    res.json({ key: apiKey });
+  });
+
+  
 
 
 //for user logout

@@ -31,3 +31,9 @@ export const getEproducts = ()=> async(dispatch)=>{
         dispatch({type:"FAIL_GET_PRODUCTS",payload:error.response})
     }
 }
+// loginAction.js
+export const login = (userData) => ({
+    type: "LOGIN_SUCCESS",
+    payload: userData
+  });
+  

@@ -83,6 +83,11 @@
     width: 150px;
     height: 150px;
     margin-top: 4px;
+    
+}
+
+.products_section .products_items img:hover{
+    transform: scale(1.4);
 }
 
 .products_section .products_items{
